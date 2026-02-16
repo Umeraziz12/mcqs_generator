@@ -1,0 +1,35 @@
+Question 1: According to the text, which of the following best describes the field of chemistry?
+  A. The study of living organisms and their chemical processes.
+  B. The study of matter's physical states and energy changes.
+  C. The study of the composition, structure, properties, and reactions of matter.
+  D. The study of atomic energy and nuclear processes.
+Answer: The study of the composition, structure, properties, and reactions of matter.
+
+Question 2: Which branch of chemistry is defined as the study of covalent compounds of carbon and hydrogen and their derivatives, with applications in petroleum and pharmaceutical industries?
+  A. Physical Chemistry
+  B. Inorganic Chemistry
+  C. Organic Chemistry
+  D. Industrial Chemistry
+Answer: Organic Chemistry
+
+Question 3: Inorganic chemistry deals with the study of all elements and their compounds, with the specific exclusion of which group of substances?
+  A. Compounds of metals
+  B. Compounds containing oxygen
+  C. Compounds of carbon and hydrogen (hydrocarbons) and their derivatives
+  D. Compounds found in living organisms
+Answer: Compounds of carbon and hydrogen (hydrocarbons) and their derivatives
+
+Question 4: If a chemist is studying the synthesis and metabolism of biomolecules like carbohydrates and proteins in living organisms, which branch of chemistry are they primarily involved in?
+  A. Environmental Chemistry
+  B. Analytical Chemistry
+  C. Biochemistry
+  D. Nuclear Chemistry
+Answer: Biochemistry
+
+Question 5: When ice is heated and melts to form water, and then water is further heated to boil and produce steam, what remains constant throughout this entire process according to the text?
+  A. The physical state of the substance
+  B. The temperature of the substance
+  C. The chemical composition of the substance
+  D. The volume occupied by the substance
+Answer: The chemical composition of the substance
+
