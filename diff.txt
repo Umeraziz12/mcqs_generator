@@ -1,0 +1,115 @@
+Question 1: Who proposed the atomic theory that stated 'all matter is made up of very small indivisible particles called atoms'?
+  A. Democritus
+  B. John Dalton
+  C. J.J. Thomson
+  D. Ernest Rutherford
+Answer: John Dalton
+
+Question 2: What did J.J. Thomson discover in 1897?
+  A. Protons
+  B. Neutrons
+  C. Electrons
+  D. Atoms
+Answer: Electrons
+
+Question 3: What type of particles did Goldstein discover in 1886?
+  A. Electrons
+  B. Neutrons
+  C. Protons
+  D. Alpha particles
+Answer: Protons
+
+Question 4: Who proposed the existence of neutrons and predicted their properties?
+  A. Ernest Rutherford
+  B. James Chadwick
+  C. John Dalton
+  D. J.J. Thomson
+Answer: Ernest Rutherford
+
+Question 5: In Rutherford's 'Gold Foil' experiment, what particles did he bombard the gold foil with?
+  A. Beta particles
+  B. Alpha particles
+  C. Gamma rays
+  D. Neutrons
+Answer: Alpha particles
+
+
+========================================
+NEW GENERATION
+========================================
+
+Question 1: Which branch of chemistry deals with the study of all elements and their compounds excluding carbon and hydrogen?
+  A. Physical Chemistry
+  B. Organic Chemistry
+  C. Inorganic Chemistry
+  D. Biochemistry
+Answer: Inorganic Chemistry
+
+Question 2: What is defined as anything that has mass and occupies space?
+  A. Matter
+  B. Substance
+  C. Mixture
+  D. Energy
+Answer: Matter
+
+Question 3: Which branch of chemistry is concerned with the composition and chemical reactions of substances in living organisms?
+  A. Industrial Chemistry
+  B. Environmental Chemistry
+  C. Analytical Chemistry
+  D. Biochemistry
+Answer: Biochemistry
+
+Question 4: What term refers to a piece of matter in pure form?
+  A. Mixture
+  B. Substance
+  C. Chemical Species
+  D. Compound
+Answer: Substance
+
+Question 5: Which branch of chemistry focuses on the separation and analysis of samples to identify their components?
+  A. Industrial Chemistry
+  B. Analytical Chemistry
+  C. Environmental Chemistry
+  D. Physical Chemistry
+Answer: Analytical Chemistry
+
+
+========================================
+NEW GENERATION
+========================================
+
+Question 1: Which of the following is NOT a branch of chemistry?
+  A. Organic Chemistry
+  B. Industrial Chemistry
+  C. Thermodynamic Chemistry
+  D. Environmental Chemistry
+Answer: Thermodynamic Chemistry
+
+Question 2: What does inorganic chemistry primarily study?
+  A. Compounds of carbon and hydrogen
+  B. Radioactivity and nuclear processes
+  C. All elements and their compounds except hydrocarbons
+  D. Chemical reactions in living organisms
+Answer: All elements and their compounds except hydrocarbons
+
+Question 3: Which branch of chemistry deals with processes in living organisms?
+  A. Analytical Chemistry
+  B. Biochemistry
+  C. Industrial Chemistry
+  D. Physical Chemistry
+Answer: Biochemistry
+
+Question 4: What is the study of relationships between composition and physical properties in matter called?
+  A. Organic Chemistry
+  B. Analytical Chemistry
+  C. Physical Chemistry
+  D. Environmental Chemistry
+Answer: Physical Chemistry
+
+Question 5: Which term refers to anything that has mass and occupies space?
+  A. Substance
+  B. Matter
+  C. Mixture
+  D. Element
+Answer: Matter
+

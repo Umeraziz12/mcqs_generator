@@ -1,30 +1,22 @@
 import os
 import argparse
 import json
-from dotenv import load_dotenv
 import PyPDF2
-import google.generativeai as genai
+from dotenv import load_dotenv
+from agents import (
+    Agent, 
+    Runner, 
+    AsyncOpenAI, 
+    OpenAIChatCompletionsModel, 
+    set_default_openai_api,
+    set_tracing_disabled
+)
 
-# Load environment variables from .env file
+# Load environment variables (expects OPENROUTER_API_KEY in .env)
 load_dotenv()
 
-# Configure the Gemini API key
-api_key = os.getenv("GOOGLE_API_KEY")
-if not api_key:
-    raise ValueError("GOOGLE_API_KEY not found. Please set it in your .env file or environment.")
-genai.configure(api_key=api_key)
-
-
+# --- STEP 1: UTILITIES ---
 def extract_text_from_pdf(pdf_filepath: str) -> str:
-    """
-    Extracts text from a PDF file.
-
-    Args:
-        pdf_filepath: The path to the PDF file.
-
-    Returns:
-        The extracted text as a single string.
-    """
     text = ""
     try:
         with open(pdf_filepath, 'rb') as f:
@@ -32,140 +24,116 @@ def extract_text_from_pdf(pdf_filepath: str) -> str:
             for page in reader.pages:
                 text += page.extract_text() + "\n"
     except Exception as e:
-        print(f"Error extracting text from PDF '{pdf_filepath}': {e}")
-        return None
+        print(f"Error extracting PDF: {e}")
+        return ""
     return text
 
-
-def generate_mcqs_with_ai(chapter_text: str, difficulty: str, model_name: str) -> list:
-    """
-    Generates Multiple Choice Questions (MCQs) from the given chapter text
-    using the Gemini AI model, with specified difficulty.
-    """
-    if not chapter_text.strip():
-        print("Error: Chapter text is empty. Cannot generate MCQs.")
-        return []
-
-    print(f"Sending chapter text to Gemini AI for '{difficulty}' difficulty MCQ generation...")
-    
-    # Few-shot example to guide the AI's output format and style.
-    # This helps improve accuracy and consistency.
-    few_shot_example = """
-Here is an example of the kind of output I want.
-Context: "The mitochondrion is a double-membraned organelle found in most eukaryotic organisms. Mitochondria generate most of the cell's supply of adenosine triphosphate (ATP), used as a source of chemical energy."
-Desired output:
-[
-  {
-    "question": "What is the primary function of the mitochondrion?",
-    "options": [
-      "To store genetic information",
-      "To generate chemical energy (ATP)",
-      "To synthesize proteins",
-      "To control cell division"
-    ],
-    "answer": "To generate chemical energy (ATP)"
-  }
-]
-"""
-
+def save_mcqs_to_file(mcqs_text: str, output_filepath: str):
+    """Parses AI output and appends formatted MCQs to a file."""
     try:
-        model = genai.GenerativeModel(model_name)
-        prompt = (
-            f"You are an expert quiz creator. Your task is to generate 5 multiple-choice questions (MCQs) from the following text.\n"
-            f"The difficulty of the questions should be '{difficulty}'.\n"
-            f"Follow the example provided to format your response.\n\n"
-            f"--- EXAMPLE ---\n{few_shot_example}\n\n"
-            f"--- CHAPTER TEXT ---\n{chapter_text[:8000]}\n---\n\n"
-            f"Your response MUST be a valid JSON array of objects, where each object "
-            f"has 'question', 'options' (an array of 4 strings), and 'answer' (the correct option string). "
-            f"Do not include any explanatory text outside of the JSON array."
-        )
-        response = model.generate_content(prompt)
+        # Clean potential markdown formatting
+        clean_text = mcqs_text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        if clean_text.strip().endswith("```"):
+            clean_text = clean_text.strip()[:-3]
         
-        # Clean the response to extract only the JSON part
-        text_response = response.text.strip()
-        json_start = text_response.find('[')
-        json_end = text_response.rfind(']') + 1
+        mcqs = json.loads(clean_text)
         
-        if json_start == -1 or json_end == 0:
-            print("Error: Could not find a valid JSON array in the AI response.")
-            print(f"Full response received:\n{response.text}")
-            return []
-            
-        json_string = text_response[json_start:json_end]
+        file_exists = os.path.exists(output_filepath)
         
-        mcqs = json.loads(json_string)
-        print("Successfully generated MCQs from AI.")
-        return mcqs
-
-    except json.JSONDecodeError as e:
-        print(f"Error: Failed to decode JSON from AI response: {e}")
-        print(f"Raw response was:\n{response.text}")
-        return []
+        with open(output_filepath, 'a', encoding='utf-8') as f:
+            if file_exists:
+                f.write("\n" + "="*40 + "\n")
+                f.write("NEW GENERATION\n")
+                f.write("="*40 + "\n\n")
+                
+            for i, mcq in enumerate(mcqs):
+                f.write(f"Question {i+1}: {mcq.get('question', 'N/A')}\n")
+                options = mcq.get('options', [])
+                for j, option in enumerate(options):
+                    f.write(f"  {chr(65+j)}. {option}\n")
+                f.write(f"Answer: {mcq.get('answer', 'N/A')}\n\n")
+        print(f"Successfully appended MCQs to {output_filepath}")
     except Exception as e:
-        print(f"An unexpected error occurred while calling the AI model: {e}")
-        return []
+        print(f"Error saving file: {e}. Appending raw output instead.")
+        with open(output_filepath, 'a', encoding='utf-8') as f:
+            f.write("\n--- RAW OUTPUT ---\n")
+            f.write(mcqs_text)
+            f.write("\n------------------\n")
 
+# Disable tracing to avoid errors with non-OpenAI keys
+set_tracing_disabled(True)
 
-def save_mcqs_to_file(mcqs: list, output_filepath: str):
-    """
-    Saves the generated MCQs to a text file.
-    """
-    with open(output_filepath, 'w', encoding='utf-8') as f:
-        for i, mcq in enumerate(mcqs):
-            f.write(f"Question {i+1}: {mcq.get('question', 'N/A')}\n")
-            options = mcq.get('options', [])
-            for j, option in enumerate(options):
-                f.write(f"  {chr(65+j)}. {option}\n")
-            f.write(f"Answer: {mcq.get('answer', 'N/A')}\n\n")
-    print(f"Generated MCQs saved to {output_filepath}")
+# Set default API to chat_completions for OpenRouter compatibility
+set_default_openai_api("chat_completions")
 
+# 1. Get your OpenRouter Key
+openrouter_key = os.environ.get("OPENROUTER_API_KEY")
 
+# 2. Create a custom OpenAI client for OpenRouter
+openrouter_client = AsyncOpenAI(
+    api_key=openrouter_key,
+    base_url="https://openrouter.ai/api/v1"
+)
+
+# 3. Initialize the model using the client
+openrouter_model = OpenAIChatCompletionsModel(
+    model="openai/gpt-4o-mini",
+    openai_client=openrouter_client
+)
+
+# Define the agent
+mcq_agent = Agent(
+    name="MCQ Generator",
+    instructions="""You are an expert quiz creator. 
+    Your task is to generate 5 MCQs from the provided text.
+    Return ONLY a valid JSON array of objects.
+    Each object must have: 'question', 'options' (list of 4 strings), and 'answer' (string).
+    Do not include any explanation or markdown outside the JSON.""",
+    model=openrouter_model
+)
+
+# --- STEP 4: MAIN LOGIC ---
 def main():
-    parser = argparse.ArgumentParser(description="Generate MCQs from a chapter using AI.")
-    parser.add_argument("chapter_filepath", type=str,
-                        help="Path to the text or PDF file for the chapter.")
-    parser.add_argument("--output", "-o", type=str, default="generated_mcqs.txt",
-                        help="Output file for the MCQs.")
-    parser.add_argument("--difficulty", "-d", type=str, default="medium",
-                        choices=["easy", "medium", "hard"],
-                        help="Set the difficulty level for the questions.")
-    parser.add_argument("--model", "-m", type=str, default="gemini-2.5-flash",
-                        help="Specify the Gemini model to use (e.g., 'gemini-1.0-pro', 'gemini-1.5-flash').")
+    parser = argparse.ArgumentParser(description="Generate MCQs from a chapter using Agents SDK.")
+    parser.add_argument("chapter_filepath", type=str, help="Path to the text or PDF file.")
+    parser.add_argument("--output", "-o", type=str, default="generated_mcqs.txt", help="Output file.")
+    parser.add_argument("--difficulty", "-d", type=str, default="medium", 
+                        choices=["easy", "medium", "hard"], help="Difficulty level.")
     args = parser.parse_args()
 
     if not os.path.exists(args.chapter_filepath):
-        print(f"Error: Chapter file not found at '{args.chapter_filepath}'")
+        print(f"Error: File not found: {args.chapter_filepath}")
         return
 
-    chapter_text = ""
-    file_extension = os.path.splitext(args.chapter_filepath)[1].lower()
-
-    if file_extension == ".pdf":
-        print(f"Extracting text from PDF: {args.chapter_filepath}")
-        chapter_text = extract_text_from_pdf(args.chapter_filepath)
-        if chapter_text is None: # Explicitly check for extraction failure
-            print(f"Failed to extract text from PDF: {args.chapter_filepath}. Aborting.")
-            return
-    elif file_extension == ".txt":
-        print(f"Reading text from: {args.chapter_filepath}")
+    content = ""
+    ext = os.path.splitext(args.chapter_filepath)[1].lower()
+    
+    if ext == ".pdf":
+        print(f"Extracting text from PDF...")
+        content = extract_text_from_pdf(args.chapter_filepath)
+    elif ext == ".txt":
         with open(args.chapter_filepath, 'r', encoding='utf-8') as f:
-            chapter_text = f.read()
+            content = f.read()
     else:
-        print(f"Error: Unsupported file type '{file_extension}'. Please use a .txt or .pdf file.")
+        print(f"Unsupported file type: {ext}")
+        return
+    
+    if not content.strip():
+        print("No content found in file.")
         return
 
-    if not chapter_text.strip(): # Check for empty or whitespace-only text
-        print("Chapter text is empty or contains only whitespace. Aborting.")
-        return
-
-    mcqs = generate_mcqs_with_ai(chapter_text, args.difficulty, args.model)
-
-    if mcqs:
-        save_mcqs_to_file(mcqs, args.output)
+    # Pass text and difficulty to the agent
+    prompt = f"Difficulty: {args.difficulty}\n\nText: {content[:8000]}"
+    
+    print(f"Generating {args.difficulty} difficulty MCQs via Agent...")
+    result = Runner.run_sync(mcq_agent, prompt)
+    
+    if result and result.final_output:
+        save_mcqs_to_file(result.final_output, args.output)
     else:
-        print("No MCQs were generated or an error occurred.")
-
+        print("Failed to generate MCQs.")
 
 if __name__ == "__main__":
     main()
