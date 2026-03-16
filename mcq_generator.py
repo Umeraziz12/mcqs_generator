@@ -87,9 +87,9 @@ openrouter_model = OpenAIChatCompletionsModel(
 mcq_agent = Agent(
     name="MCQ Generator",
     instructions="""You are an expert quiz creator. 
-    Your task is to generate 5 MCQs from the provided text.
+    Your task is to generate exactly {num_questions} MCQs from the provided text.
     Return ONLY a valid JSON array of objects.
-    Each object must have: 'question', 'options' (list of 4 strings), and 'answer' (string).
+    Each object must have: 'question', 'options' (list of 4 strings), 'answer' (string), and 'explanation' (a short sentence explaining the answer).
     Do not include any explanation or markdown outside the JSON.""",
     model=openrouter_model
 )
