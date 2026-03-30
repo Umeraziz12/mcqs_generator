@@ -13,7 +13,7 @@ from agents import (
 )
 
 # Load environment variables (expects OPENROUTER_API_KEY in .env)
-load_dotenv()
+load_dotenv(override=True)
 
 # --- STEP 1: UTILITIES ---
 def extract_text_from_pdf(pdf_filepath: str) -> str:
@@ -79,7 +79,7 @@ openrouter_client = AsyncOpenAI(
 
 # 3. Initialize the model using the client
 openrouter_model = OpenAIChatCompletionsModel(
-    model="openai/gpt-4o-mini",
+    model="google/gemini-2.0-flash-001",
     openai_client=openrouter_client
 )
 
@@ -87,7 +87,8 @@ openrouter_model = OpenAIChatCompletionsModel(
 mcq_agent = Agent(
     name="MCQ Generator",
     instructions="""You are an expert quiz creator. 
-    Your task is to generate exactly {num_questions} MCQs from the provided text.
+    Your task is to generate exactly {num_questions} MCQs from the provided CONTEXT. 
+    Ensure the questions are accurate and directly based on the context.
     Return ONLY a valid JSON array of objects.
     Each object must have: 'question', 'options' (list of 4 strings), 'answer' (string), and 'explanation' (a short sentence explaining the answer).
     Do not include any explanation or markdown outside the JSON.""",
@@ -125,6 +126,7 @@ def main():
         return
 
     # Pass text and difficulty to the agent
+    mcq_agent.instructions = mcq_agent.instructions.format(num_questions=5) # Default to 5 in standalone
     prompt = f"Difficulty: {args.difficulty}\n\nText: {content[:8000]}"
     
     print(f"Generating {args.difficulty} difficulty MCQs via Agent...")
